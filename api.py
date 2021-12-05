@@ -1,11 +1,17 @@
-from .app import app
+from fastapi import APIRouter
 
 
-@app.get("/books/")
-def list_all_books():
+router = APIRouter(
+    prefix="/books",
+    tags=["books"]
+)
+
+
+@router.get("/")
+async def list_all_books():
     return {}
 
 
-@app.get("/books/{book_uuid}/{page_number}")
-def get_page(book_uuid: str, page_nubmer: int):
+@router.get("/{book_uuid}/{page_number}")
+async def get_page(book_uuid: str, page_number: int):
     return {}
