@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "neosebookreader"
-version = "0.1.0"
+version = "0.0.1"
 description = "A simnple server reading your epub files and serving them as text and images in NEOS compatible way"
 authors = ["lorow <smykupyka@gmail.com>"]
 
@@ -12,9 +12,20 @@ fastapi = "^0.70.0"
 pytest = "^6.2.5"
 uvicorn = "^0.15.0"
 requests = "^2.26.0"
+python-dotenv = "^0.19.2"
+bumpver = "^2021.1114"
+coverage = "^6.2"
+pytest-cov = "^3.0.0"
+databases = {extras = ["sqlite"], version = "^0.5.3"}
+alembic = "^1.7.5"
+uuid = "^1.30"
 
 [tool.poetry.dev-dependencies]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[bumpver]
+current_version = "0.1.0"
+version_pattern = "MAJOR.MINOR.PATCH"
