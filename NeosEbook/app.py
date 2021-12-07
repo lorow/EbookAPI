@@ -1,10 +1,10 @@
 from fastapi import FastAPI
-from .utils import get_db
-from . import api as neos_books_api
+from NeosEbook.utils import get_db
+from NeosEbook.api import router
 
 db = get_db()
 app = FastAPI()
-app.include_router(neos_books_api.router)
+app.include_router(router)
 
 
 @app.on_event("startup")
