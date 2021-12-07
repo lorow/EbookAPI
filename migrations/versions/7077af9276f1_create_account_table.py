@@ -26,6 +26,7 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.Column("uuid", sa.String(), default=uuid.uuid4),
+        sa.Column("thumbnail", sa.String(), nullable=True),
         sa.Column("file_path", sa.String()),
         sa.Column("pages", sa.Integer()),
         sa.Column("current_page", sa.Integer(), default=0)
