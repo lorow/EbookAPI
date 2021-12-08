@@ -1,11 +1,8 @@
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from NeosEbook.utils import get_db
 from NeosEbook.api import router
 
-load_dotenv()
-
-db = await get_db()
+db = get_db()
 app = FastAPI()
 app.include_router(router)
 

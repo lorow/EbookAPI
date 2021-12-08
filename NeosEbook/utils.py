@@ -3,7 +3,7 @@ import databases
 from NeosEbook.settings import Settings
 
 
-async def get_db() -> databases.Database:
+def get_db() -> databases.Database:
     config = Settings()
 
     if config.environment == "TESTING":

@@ -10,7 +10,6 @@ from alembic import context
 from NeosEbook import models
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-load_dotenv(os.path.join(BASE_DIR, ".env"))
 sys.path.append(BASE_DIR)
 
 # this is the Alembic Config object, which provides
@@ -18,6 +17,7 @@ sys.path.append(BASE_DIR)
 config = context.config
 # this will overwrite the ini-file sqlalchemy.url path
 # with the path given in the config of the main code
+load_dotenv()
 config.set_main_option("sqlalchemy.url", os.environ["DATABASE_URL"])
 
 # Interpret the config file for Python logging.
