@@ -1,10 +1,7 @@
 from fastapi import APIRouter
 
 
-router = APIRouter(
-    prefix="/books",
-    tags=["books"]
-)
+router = APIRouter(prefix="/books", tags=["books"])
 
 
 @router.get("/")

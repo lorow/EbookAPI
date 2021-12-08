@@ -12,13 +12,13 @@ fastapi = "^0.70.0"
 pytest = "^6.2.5"
 uvicorn = "^0.15.0"
 requests = "^2.26.0"
-python-dotenv = "^0.19.2"
 bumpver = "^2021.1114"
 coverage = "^6.2"
 pytest-cov = "^3.0.0"
 databases = {extras = ["sqlite"], version = "^0.5.3"}
 alembic = "^1.7.5"
 uuid = "^1.30"
+python-dotenv = "^0.19.2"
 
 [tool.poetry.dev-dependencies]
 

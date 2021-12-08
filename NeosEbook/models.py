@@ -6,10 +6,11 @@ from sqlalchemy.orm import declarative_base
 Base = declarative_base()
 
 
-class Book(Base):
+class NeosBook(Base):
     __tablename__ = "neosbooks__books"
     id = Column(Integer, primary_key=True, index=True)
     uuid: Column(UUID(as_uuid=True), default=uuid.uuid4)
+    title: Column(String)
     thumbnail: Column(String)
     file_path: Column(String)
     pages: Column(Integer)

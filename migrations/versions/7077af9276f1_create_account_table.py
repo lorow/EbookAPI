@@ -26,10 +26,11 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.Column("uuid", sa.String(), default=uuid.uuid4),
+        sa.Column("title", sa.String()),
         sa.Column("thumbnail", sa.String(), nullable=True),
         sa.Column("file_path", sa.String()),
         sa.Column("pages", sa.Integer()),
-        sa.Column("current_page", sa.Integer(), default=0)
+        sa.Column("current_page", sa.Integer(), default=0),
     )
     op.create_index(
         op.f("ix_neosbooks__books_id"), "neosbooks__books", ["id"], unique=False
