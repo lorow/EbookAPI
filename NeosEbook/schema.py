@@ -22,3 +22,10 @@ class NeosBookOutList(BaseModel):
     uuid: str
     title: str
     thumbnail: str
+    file_format: str
+
+
+class PageContent(BaseModel):
+    uuid: str
+    content: str
+    page_number: int
