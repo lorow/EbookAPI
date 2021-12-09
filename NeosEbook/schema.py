@@ -6,7 +6,8 @@ class NeosBookBase(BaseModel):
     title: str
     thumbnail: str
     pages: int
-    current_page: int = 0
+    current_page: int
+    file_format: str
 
     class Config:
         orm_mode = True
@@ -17,11 +18,7 @@ class NeosBookDB(NeosBookBase):
     file_path: str
 
 
-class NeosBookOutDetail(NeosBookBase):
-    pass
-
-
-class NeosBookOutList:
+class NeosBookOutList(BaseModel):
     uuid: str
     title: str
     thumbnail: str

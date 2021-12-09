@@ -29,6 +29,7 @@ def upgrade():
         sa.Column("title", sa.String()),
         sa.Column("thumbnail", sa.String(), nullable=True),
         sa.Column("file_path", sa.String()),
+        sa.Column("file_format", sa.String()),
         sa.Column("pages", sa.Integer()),
         sa.Column("current_page", sa.Integer(), default=0),
     )

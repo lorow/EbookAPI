@@ -13,5 +13,6 @@ class NeosBook(Base):
     title: Column(String)
     thumbnail: Column(String)
     file_path: Column(String)
+    file_format: Column(String)
     pages: Column(Integer)
     current_page: Column(Integer, default=0)
