@@ -2,6 +2,7 @@ from typing import Iterable
 
 import databases
 
+from NeosEbook.models import NeosBook
 from NeosEbook.schema import NeosBookDB
 
 
@@ -10,10 +11,12 @@ class LocalBookRepository:
         self.db: databases.Database = db
 
     async def get_all_books(self) -> Iterable[NeosBookDB]:
-        pass
+        query = NeosBook.select()
+        return await self.db.fetch_all(query)
 
     async def get_book(self, uuid: str) -> NeosBookDB:
-        pass
+        query = NeosBook.select(uuid=uuid)
+        return await self.db.fetch_one(query)
 
     async def add_book(self, book) -> bool:
         pass
