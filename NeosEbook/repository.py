@@ -1,21 +1,22 @@
 from typing import Iterable
 
 import databases
-import models
+
+from NeosEbook.schema import NeosBookDB
 
 
-class BookRepository:
+class LocalBookRepository:
     def __init__(self, db: databases.Database):
-        self.db = db
+        self.db: databases.Database = db
 
-    def get_all_books(self) -> Iterable[dict]:
+    async def get_all_books(self) -> Iterable[NeosBookDB]:
         pass
 
-    def get_book_content_for_page(self, uuid, page) -> dict:
+    async def get_book(self, uuid: str) -> NeosBookDB:
         pass
 
-    def add_book(self, book: models.NeosBook) -> bool:
+    async def add_book(self, book) -> bool:
         pass
 
-    def remove_book(self, uuid) -> bool:
+    async def remove_book(self, uuid) -> bool:
         pass

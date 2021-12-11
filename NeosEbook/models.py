@@ -1,18 +1,20 @@
 import uuid as uuid
+
+import sqlalchemy
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy import Column, String, Integer
-from sqlalchemy.orm import declarative_base
 
-Base = declarative_base()
+from NeosEbook.database import metadata
 
-
-class NeosBook(Base):
-    __tablename__ = "neosbooks__books"
-    id = Column(Integer, primary_key=True, index=True)
-    uuid: Column(UUID(as_uuid=True), default=uuid.uuid4)
-    title: Column(String)
-    thumbnail: Column(String)
-    file_path: Column(String)
-    file_format: Column(String)
-    pages: Column(Integer)
-    current_page: Column(Integer, default=0)
+NeosBook = sqlalchemy.Table(
+    "neosbooks__books",
+    metadata,
+    Column("id", Integer, primary_key=True, index=True),
+    Column("uuid", UUID(as_uuid=True), default=uuid.uuid4),
+    Column("title", String),
+    Column("thumbnail", String),
+    Column("file_path", String),
+    Column("file_format", String),
+    Column("pages", Integer),
+    Column("current_page", Integer, default=0),
+)

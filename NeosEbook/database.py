@@ -1,4 +1,5 @@
 import databases
+import sqlalchemy
 
 from NeosEbook.settings import Settings
 
@@ -11,3 +12,7 @@ def get_db() -> databases.Database:
     else:
         db = databases.Database(config.database_url)
     return db
+
+
+db = get_db()
+metadata = sqlalchemy.MetaData()
