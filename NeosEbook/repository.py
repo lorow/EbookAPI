@@ -1,6 +1,7 @@
 from typing import Iterable
 
 import databases
+from sqlalchemy import text
 
 from NeosEbook.models import NeosBook
 from NeosEbook.schema import NeosBookDB
@@ -15,7 +16,9 @@ class LocalBookRepository:
         return await self.db.fetch_all(query)
 
     async def get_book(self, uuid: str) -> NeosBookDB:
-        query = NeosBook.select(uuid=uuid)
+        query = NeosBook.select().where(
+            text(f"uuid==uuid")
+        )
         return await self.db.fetch_one(query)
 
     async def add_book(self, book) -> bool:
