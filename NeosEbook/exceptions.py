@@ -1,0 +1,2 @@
+class StrategyNotImplementedException(Exception):
+    pass
