@@ -7,10 +7,8 @@ Create Date: 2021-12-05 14:31:28.703755
 """
 import uuid
 
-from alembic import op
 import sqlalchemy as sa
-
-
+from alembic import op
 # revision identifiers, used by Alembic.
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -25,7 +23,7 @@ def upgrade():
         "neosbooks__books",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
-        sa.Column("uuid", sa.String(), default=uuid.uuid4),
+        sa.Column("uuid", sa.String()),
         sa.Column("title", sa.String()),
         sa.Column("thumbnail", sa.String(), nullable=True),
         sa.Column("file_path", sa.String()),

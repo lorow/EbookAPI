@@ -1,8 +1,10 @@
+from uuid import UUID
+
 from pydantic import BaseModel
 
 
 class NeosBookBase(BaseModel):
-    uuid: str
+    uuid: UUID
     title: str
     thumbnail: str
     pages: int
@@ -19,7 +21,7 @@ class NeosBookDB(NeosBookBase):
 
 
 class NeosBookOutList(BaseModel):
-    uuid: str
+    uuid: UUID
     title: str
     thumbnail: str
     file_format: str

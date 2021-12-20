@@ -2,12 +2,11 @@ import os
 import sys
 from logging.config import fileConfig
 
-from dotenv import load_dotenv
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
 from alembic import context
-from NeosEbook import models
+from dotenv import load_dotenv
+from sqlalchemy import engine_from_config, pool
+
+from NeosEbook import database
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
@@ -29,7 +28,7 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-target_metadata = models.Base.metadata
+target_metadata = database.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

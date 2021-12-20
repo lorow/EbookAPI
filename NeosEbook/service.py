@@ -17,9 +17,9 @@ class NeosEbookService:
     async def get_page(self, book_uuid, page_number) -> dict:
         book = await self.repository.get_book(uuid=book_uuid)
         if not book:
-            raise fastapi.exceptions.ValidationError("book with given uuid does not exist")
+            raise fastapi.HTTPException(status_code=404, detail="book with given uuid does not exist")
 
-        parser_strategy = get_ebook_processing_strategy(book)
+        parser_strategy = get_ebook_processing_strategy(book)()
         page = parser_strategy.get_page(page_number)
 
         return page
