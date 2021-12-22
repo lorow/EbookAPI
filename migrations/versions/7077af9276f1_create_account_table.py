@@ -29,7 +29,7 @@ def upgrade():
         sa.Column("file_path", sa.String()),
         sa.Column("file_format", sa.String()),
         sa.Column("pages", sa.Integer()),
-        sa.Column("current_page", sa.Integer(), default=0),
+        sa.Column("locations", sa.Integer()),
     )
     op.create_index(
         op.f("ix_neosbooks__books_id"), "neosbooks__books", ["id"], unique=False
@@ -37,9 +37,17 @@ def upgrade():
     op.create_index(
         op.f("ix_neosbooks__books_uuid"), "neosbooks__books", ["uuid"], unique=False
     )
+    op.create_table(
+        "neosbooks_reading_state",
+        sa.Column("book_uuid", sa.String()),
+        sa.Column("page", sa.Integer(), default=0, nullable=True),
+        sa.Column("location", sa.Integer(), default=0, nullable=True),
+        sa.Column("progress", sa.Integer(), default=0),
+    )
 
 
 def downgrade():
     op.drop_index(op.f("ix_neosbooks__books_id"), table_name="neosbooks__books")
     op.drop_index(op.f("ix_neosbooks__books_uuid"), table_name="neosbooks__books")
     op.drop_table("neosbooks__books")
+    op.drop_table("neosbooks_reading_state")

@@ -1,8 +1,8 @@
 import uuid as uuid
 
 import sqlalchemy
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import Column, String, Integer
 
 from NeosEbook.database import metadata
 
@@ -16,5 +16,15 @@ NeosBook = sqlalchemy.Table(
     Column("file_path", String),
     Column("file_format", String),
     Column("pages", Integer),
-    Column("current_page", Integer, default=0),
+    Column("locations", Integer),
+)
+
+
+ReadingState = sqlalchemy.Table(
+    "neosbooks_reading_state",
+    metadata,
+    Column("book_uuid", UUID(as_uuid=True)),
+    Column("page", Integer, default=0, nullable=True),
+    Column("location", Integer, default=0, nullable=True),
+    Column("progress", Integer, default=0),
 )

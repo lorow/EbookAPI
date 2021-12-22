@@ -1,15 +1,17 @@
-from .fixtures import *
 from ..exceptions import StrategyNotImplementedException
-from ..strategies import get_ebook_processing_strategy, EPUBBookStrategy
+from ..strategies import EPUBBookStrategy, get_ebook_processing_strategy
+from .fixtures import *
 
 
-def test_get_ebook_processing_strategy(test_epub_book):
-    strategy = get_ebook_processing_strategy(test_epub_book)
+@pytest.mark.asyncio
+async def test_get_ebook_processing_strategy(test_epub_book):
+    strategy = await get_ebook_processing_strategy(test_epub_book)
     assert strategy is not None
-    assert issubclass(strategy, EPUBBookStrategy)
+    assert isinstance(strategy, EPUBBookStrategy)
 
 
-def test_get_ebook_processing_strategy_bad_extension(test_bad_extension_book):
+@pytest.mark.asyncio
+async def test_get_ebook_processing_strategy_bad_extension(test_bad_extension_book):
 
     with pytest.raises(StrategyNotImplementedException):
-        get_ebook_processing_strategy(test_bad_extension_book)
+        await get_ebook_processing_strategy(test_bad_extension_book)

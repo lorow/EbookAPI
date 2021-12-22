@@ -19,7 +19,9 @@ class NeosEbookService:
         if not book:
             raise fastapi.HTTPException(status_code=404, detail="book with given uuid does not exist")
 
-        parser_strategy = get_ebook_processing_strategy(book)()
-        page = parser_strategy.get_page(page_number)
+        book = NeosBookDB(**book)
+
+        parser_strategy = await get_ebook_processing_strategy(book)
+        page = await parser_strategy.get_page(page_number)
 
         return page
