@@ -21,10 +21,20 @@ NeosBook = sqlalchemy.Table(
 
 
 ReadingState = sqlalchemy.Table(
-    "neosbooks_reading_state",
+    "neosbooks__reading_state",
     metadata,
-    Column("book_uuid", UUID(as_uuid=True)),
+    Column("uuid", UUID(as_uuid=True)),
     Column("page", Integer, default=0, nullable=True),
     Column("location", Integer, default=0, nullable=True),
     Column("progress", Integer, default=0),
+)
+
+
+ChapterLocations = sqlalchemy.Table(
+    "neosbooks__chapter_locations",
+    metadata,
+    Column("id", String),
+    Column("uuid", UUID(as_uuid=True)),
+    Column("locations_min", Integer, default=0),
+    Column("locations_max", Integer, default=0),
 )

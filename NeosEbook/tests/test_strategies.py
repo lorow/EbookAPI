@@ -7,7 +7,7 @@ from .fixtures import *
 async def test_get_ebook_processing_strategy(test_epub_book):
     strategy = await get_ebook_processing_strategy(test_epub_book)
     assert strategy is not None
-    assert isinstance(strategy, EPUBBookStrategy)
+    assert issubclass(strategy, EPUBBookStrategy)
 
 
 @pytest.mark.asyncio

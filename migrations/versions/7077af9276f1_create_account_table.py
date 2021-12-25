@@ -9,8 +9,8 @@ import uuid
 
 import sqlalchemy as sa
 from alembic import op
+
 # revision identifiers, used by Alembic.
-from sqlalchemy.dialects.postgresql import UUID
 
 revision = "7077af9276f1"
 down_revision = None
@@ -38,16 +38,23 @@ def upgrade():
         op.f("ix_neosbooks__books_uuid"), "neosbooks__books", ["uuid"], unique=False
     )
     op.create_table(
-        "neosbooks_reading_state",
+        "neosbooks__reading_state",
         sa.Column("book_uuid", sa.String()),
         sa.Column("page", sa.Integer(), default=0, nullable=True),
         sa.Column("location", sa.Integer(), default=0, nullable=True),
         sa.Column("progress", sa.Integer(), default=0),
     )
-
+    op.create_table(
+        "neosbooks__chapter_locations",
+        sa.Column("id", sa.String()),
+        sa.Column("uuid", sa.String()),
+        sa.Column("locations_min", sa.Integer(), default=0),
+        sa.Column("locations_max", sa.Integer(), default=0),
+    )
 
 def downgrade():
     op.drop_index(op.f("ix_neosbooks__books_id"), table_name="neosbooks__books")
     op.drop_index(op.f("ix_neosbooks__books_uuid"), table_name="neosbooks__books")
     op.drop_table("neosbooks__books")
-    op.drop_table("neosbooks_reading_state")
+    op.drop_table("neosbooks__reading_state")
+    op.drop_table("neosbooks__chapter_locations")
