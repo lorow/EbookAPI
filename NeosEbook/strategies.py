@@ -12,13 +12,16 @@ from NeosEbook.schema import NeosBookDB
 
 
 class BaseBookStrategy(abc.ABC):
-    def __init__(self, book: Optional[NeosBookDB] = None, book_path: str = None):
+    def __init__(self, book: Optional[NeosBookDB] = None, ebook_file_path: str = None):
         self.book = book
 
     async def get_menu(self):
         raise NotImplementedError
 
     async def get_page(self, number) -> dict:
+        raise NotImplementedError
+
+    async def get_cover(self) -> bytearray:
         raise NotImplementedError
 
     async def get_book_data(self, book_path: str) -> dict:
@@ -30,11 +33,24 @@ class BaseBookStrategy(abc.ABC):
 
 class EPUBBookStrategy(BaseBookStrategy):
 
-    def __init__(self, book=None, book_path=None):
+    def __init__(self, book=None, ebook_file_path=None):
         super(EPUBBookStrategy, self).__init__(book)
         self.epub_book: Optional[epub.EpubBook] = None
-        if book_path:
-            self.epub_book = self._get_epub_from_path(book_path)
+        if ebook_file_path:
+            self.epub_book = self._get_epub_from_path(ebook_file_path)
+
+    async def get_page(self, number: int):
+        pass
+
+    async def get_menu(self):
+        pass
+
+    async def get_cover(self) -> bytearray:
+        if not self.epub_book:
+            return None
+
+        cover_chapter = self.epub_book.get_item_with_id(self.book.thumbnail)
+        return cover_chapter.content
 
     async def get_book_data(self, book_path: str):
         if not self.epub_book:
@@ -45,7 +61,7 @@ class EPUBBookStrategy(BaseBookStrategy):
         book_data = {
             "uuid": book_uuid,
             "title": self.epub_book.title,
-            "thumbnail": await self._get_cover(self.epub_book),
+            "thumbnail": await self._get_cover_chapter_id(self.epub_book),
             "pages": pages,
             "file_path": book_path,
             "locations": 0,
@@ -60,7 +76,7 @@ class EPUBBookStrategy(BaseBookStrategy):
         if not self.epub_book:
             return locations_stats
 
-        chapters = [item for item in self.epub_book.items if isinstance(item, epub.EpubHtml)]
+        chapters = [item for item in self.epub_book.get_items_of_type(ebooklib.ITEM_DOCUMENT) if item.is_chapter()]
 
         total_words_count = sum([len(item.content) for item in chapters]) // 128
         if total_words_count:
@@ -75,11 +91,22 @@ class EPUBBookStrategy(BaseBookStrategy):
 
         return locations_stats
 
-    async def get_menu(self):
-        pass
+    @staticmethod
+    async def _get_cover_chapter_id(book: epub.EpubBook):
+        """
+        Save the ID of the chapter which holds the cover image.
+        This way we can save space and send it right away on request
+        """
+        for item in book.items:
+            if (isinstance(item, epub.EpubImage) and "cover" in item.file_name) or isinstance(item, epub.EpubCover):
+                return item.id
 
-    async def get_page(self, number: int):
-        pass
+    @staticmethod
+    def _get_epub_from_path(book_path) -> epub.EpubBook:
+        base_file_dir = os.path.dirname(os.path.dirname(__file__))
+        ebook_path = f"{base_file_dir}{book_path}"
+        epub_book = epub.read_epub(ebook_path)
+        return epub_book
 
     async def _get_chapter_locations_ranges(
         self,

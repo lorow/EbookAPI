@@ -28,6 +28,15 @@ class NeosEbookService:
 
         return page
 
+    async def get_cover(self, book_uuid) -> bytearray:
+        book = await self.book_repository.get_book(book_uuid)
+
+        parser_strategy = await get_ebook_processing_strategy(book.file_format)
+        parser = parser_strategy(book=book, ebook_file_path=book.file_path)
+        cover = await parser.get_cover()
+
+        return cover
+
     async def add_book_from_path(self, book_path: str):
         """Add book and index its chapters if necessary"""
 
