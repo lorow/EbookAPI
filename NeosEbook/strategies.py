@@ -1,13 +1,13 @@
 import abc
 import os
 import uuid
-from pathlib import Path
 from typing import List, Optional, Type
 
 import ebooklib
 from ebooklib import epub
 
 from NeosEbook import exceptions
+from NeosEbook import constants
 from NeosEbook.schema import NeosBookDB
 
 
@@ -78,9 +78,9 @@ class EPUBBookStrategy(BaseBookStrategy):
 
         chapters = [item for item in self.epub_book.get_items_of_type(ebooklib.ITEM_DOCUMENT) if item.is_chapter()]
 
-        total_words_count = sum([len(item.content) for item in chapters]) // 128
+        total_words_count = sum([len(item.content) for item in chapters]) // constants.LOCATION
         if total_words_count:
-            locations_stats["total"] = total_words_count // 128  # make that a constant
+            locations_stats["total"] = total_words_count // constants.LOCATION
             locations_stats["per_chapter"] = await self._get_chapter_locations_ranges(
                 book_uuid=book_uuid,
                 index=0,
@@ -118,7 +118,7 @@ class EPUBBookStrategy(BaseBookStrategy):
     ) -> List[dict]:
         current_chapter = chapters[index]
         chapter_id = current_chapter.id
-        locations_in_chapter = len(current_chapter.content) // 128
+        locations_in_chapter = len(current_chapter.content) // constants.LOCATION
 
         locations_min = previous_chapter.get("locations_max") + 1 if previous_chapter else 0
         locations_max = (

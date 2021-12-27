@@ -42,7 +42,7 @@ class NeosEbookService:
 
         file_extension = book_path.split(".")[-1]
         parser_strategy = await get_ebook_processing_strategy(file_extension)
-        parser = parser_strategy(book_path=book_path)
+        parser = parser_strategy(ebook_file_path=book_path)
 
         book_data = await parser.get_book_data(book_path)
 
