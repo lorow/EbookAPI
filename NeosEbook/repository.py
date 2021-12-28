@@ -1,8 +1,9 @@
 from typing import Iterable, List
 
 import databases
-from sqlalchemy import text, select, insert
+from sqlalchemy import text, select, insert, exists
 
+from NeosEbook.exceptions import ReadingStateAlreadyExistsException
 from NeosEbook.models import ChapterLocations, NeosBook, ReadingState
 from NeosEbook.schema import NeosBookDB
 
@@ -43,3 +44,11 @@ class ReadingStateRepository(BaseRepository):
 
     async def update_reading_state(self, uuid, data):
         pass
+
+    async def add_reading_state(self, data):
+        is_reading_state_present_query = select(ReadingState).where(text(f"uuid=='{data.get('uuid')}'"))
+        if await self.db.fetch_one(query=is_reading_state_present_query):
+            raise ReadingStateAlreadyExistsException()
+
+        query = insert(ReadingState).values(data)
+        return await self.db.execute(query)

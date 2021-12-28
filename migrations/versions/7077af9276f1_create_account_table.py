@@ -39,7 +39,7 @@ def upgrade():
     )
     op.create_table(
         "neosbooks__reading_state",
-        sa.Column("book_uuid", sa.String()),
+        sa.Column("uuid", sa.String()),
         sa.Column("page", sa.Integer(), default=0, nullable=True),
         sa.Column("location", sa.Integer(), default=0, nullable=True),
         sa.Column("progress", sa.Integer(), default=0),
@@ -51,6 +51,7 @@ def upgrade():
         sa.Column("locations_min", sa.Integer(), default=0),
         sa.Column("locations_max", sa.Integer(), default=0),
     )
+
 
 def downgrade():
     op.drop_index(op.f("ix_neosbooks__books_id"), table_name="neosbooks__books")

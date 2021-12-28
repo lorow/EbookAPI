@@ -2,7 +2,7 @@ from typing import Iterable, Optional
 
 import fastapi.exceptions
 
-from NeosEbook.repository import ChapterLocationsRepository, LocalBookRepository
+from NeosEbook.repository import ChapterLocationsRepository, LocalBookRepository, ReadingStateRepository
 from NeosEbook.schema import NeosBookDB
 from NeosEbook.strategies import get_ebook_processing_strategy
 
@@ -11,6 +11,7 @@ class NeosEbookService:
     def __init__(self, db):
         self.book_repository = LocalBookRepository(db)
         self.chapters_repository = ChapterLocationsRepository(db)
+        self.reading_state_repository = ReadingStateRepository(db)
 
     async def get_books(self, q: Optional[str] = None) -> Iterable[NeosBookDB]:
         return await self.book_repository.get_all_books()
@@ -45,13 +46,22 @@ class NeosEbookService:
         parser = parser_strategy(ebook_file_path=book_path)
 
         book_data = await parser.get_book_data(book_path)
+        book_uuid = book_data.get("uuid")
+
+        reading_state_data = {
+            "uuid": book_uuid,
+            "location": 0,
+            "page": 0,
+            "progress": 0
+        }
 
         locations_data = None
         if not book_data.get("pages", 0):
-            locations_data = await parser.get_locations_data(book_data.get("uuid"))
+            locations_data = await parser.get_locations_data(book_uuid)
             book_data.update({"locations": locations_data.get("total", 0)})
 
         await self.book_repository.add_book(book_data)
+        await self.reading_state_repository.add_reading_state(reading_state_data)
 
         if locations_data:
             await self.chapters_repository.add_chapter_locations(locations_data.get("per_chapter", []))
