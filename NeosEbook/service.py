@@ -15,7 +15,7 @@ class NeosEbookService:
     async def get_books(self, q: Optional[str] = None) -> Iterable[NeosBookDB]:
         return await self.book_repository.get_all_books()
 
-    async def get_page(self, book_uuid, page_number) -> dict:
+    async def get_page(self, book_uuid: str, page_number: Optional[int]) -> dict:
         book = await self.book_repository.get_book(uuid=book_uuid)
         if not book:
             raise fastapi.HTTPException(status_code=404, detail="book with given uuid does not exist")
@@ -23,7 +23,7 @@ class NeosEbookService:
         book = NeosBookDB(**book)
 
         parser_strategy = await get_ebook_processing_strategy(book.file_format)
-        parser = parser_strategy(book=book)
+        parser = parser_strategy(book=book, ebook_file_path=book.file_path)
         page = await parser.get_page(page_number)
 
         return page

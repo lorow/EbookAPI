@@ -1,9 +1,9 @@
 from typing import Iterable, List
 
 import databases
-from sqlalchemy import text
+from sqlalchemy import text, select, insert
 
-from NeosEbook.models import ChapterLocations, NeosBook
+from NeosEbook.models import ChapterLocations, NeosBook, ReadingState
 from NeosEbook.schema import NeosBookDB
 
 
@@ -14,16 +14,16 @@ class BaseRepository:
 
 class LocalBookRepository(BaseRepository):
     async def get_all_books(self) -> List[NeosBookDB]:
-        query = NeosBook.select()
+        query = select(NeosBook)
         return await self.db.fetch_all(query)
 
     async def get_book(self, uuid: str) -> NeosBookDB:
-        query = NeosBook.select().where(text(f"uuid=='{uuid}'"))
+        query = select(NeosBook).where(text(f"uuid=='{uuid}'"))
         return await self.db.fetch_one(query)
 
     async def add_book(self, book) -> bool:
-        query = NeosBook.insert()
-        return await self.db.execute(query=query, values=book)
+        query = insert(NeosBook).values(book)
+        return await self.db.execute(query=query)
 
     async def remove_book(self, uuid) -> bool:
         query = NeosBook.delete().where(text(f"uuid=='{uuid}'"))
@@ -32,5 +32,14 @@ class LocalBookRepository(BaseRepository):
 
 class ChapterLocationsRepository(BaseRepository):
     async def add_chapter_locations(self, locations_data):
-        query = ChapterLocations.insert()
-        return await self.db.execute_many(query=query, values=locations_data)
+        query = insert(ChapterLocations).values(locations_data)
+        return await self.db.execute(query=query)
+
+
+class ReadingStateRepository(BaseRepository):
+    async def get_reading_state(self, uuid):
+        query = select(ReadingState).where(text(f"uuid=='{uuid}'"))
+        return await self.db.execute(query)
+
+    async def update_reading_state(self, uuid, data):
+        pass

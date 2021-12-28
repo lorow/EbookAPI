@@ -27,7 +27,7 @@ async def get_cover(book_uuid: str, db: get_db = Depends()):
     return Response(content=cover, media_type="image/png")
 
 
-@router.get("/{book_uuid}/page/{page_number}", response_model=PageContent)
-async def get_page(book_uuid: str, page_number: int, db: get_db = Depends()):
-    page = await NeosEbookService(db).get_page(book_uuid, page_number)
+@router.get("/{book_uuid}/page/", response_model=PageContent)
+async def get_page(book_uuid: str, page: Optional[int] = None, db: get_db = Depends()):
+    page = await NeosEbookService(db).get_page(book_uuid, page)
     return page
