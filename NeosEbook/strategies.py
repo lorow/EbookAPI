@@ -77,8 +77,7 @@ class EPUBBookStrategy(BaseBookStrategy):
             return locations_stats
 
         chapters = [item for item in self.epub_book.get_items_of_type(ebooklib.ITEM_DOCUMENT) if item.is_chapter()]
-
-        total_words_count = sum([len(item.content) for item in chapters]) // constants.LOCATION
+        total_words_count = sum([len(item.get_body_content()) for item in chapters])
         if total_words_count:
             locations_stats["total"] = total_words_count // constants.LOCATION
             locations_stats["per_chapter"] = await self._get_chapter_locations_ranges(
@@ -118,8 +117,7 @@ class EPUBBookStrategy(BaseBookStrategy):
     ) -> List[dict]:
         current_chapter = chapters[index]
         chapter_id = current_chapter.id
-        locations_in_chapter = len(current_chapter.content) // constants.LOCATION
-
+        locations_in_chapter = len(current_chapter.get_body_content()) // constants.LOCATION
         locations_min = previous_chapter.get("locations_max") + 1 if previous_chapter else 0
         locations_max = (
             previous_chapter.get("locations_max") + locations_in_chapter if previous_chapter else locations_in_chapter
