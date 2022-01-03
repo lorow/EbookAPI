@@ -3,7 +3,7 @@ from typing import Iterable, Optional
 import fastapi.exceptions
 
 from NeosEbook.repository import ChapterLocationsRepository, LocalBookRepository, ReadingStateRepository
-from NeosEbook.schema import NeosBookDB
+from NeosEbook.schema import NeosBookDB, ReadingState
 from NeosEbook.strategies import get_ebook_processing_strategy
 
 
@@ -17,15 +17,22 @@ class NeosEbookService:
         return await self.book_repository.get_all_books()
 
     async def get_page(self, book_uuid: str, page_number: Optional[int]) -> dict:
-        book = await self.book_repository.get_book(uuid=book_uuid)
-        if not book:
+        book_record = await self.book_repository.get_book(uuid=book_uuid)
+        if not book_record:
             raise fastapi.HTTPException(status_code=404, detail="book with given uuid does not exist")
 
-        book = NeosBookDB(**book)
+        book = NeosBookDB(**book_record)
+        reading_state_row = await self.reading_state_repository.get_reading_state(book_uuid)
+        reading_state = ReadingState(**reading_state_row)
 
         parser_strategy = await get_ebook_processing_strategy(book.file_format)
         parser = parser_strategy(book=book, ebook_file_path=book.file_path)
-        page = await parser.get_page(page_number)
+
+        if not page_number:
+            page_number = reading_state.page if book.pages else reading_state.location
+        page = await parser.get_page(page_number, self.chapters_repository, reading_state)
+
+        await self._update_reading_state(book, book.uuid, page_number)
 
         return page
 
@@ -52,7 +59,8 @@ class NeosEbookService:
             "uuid": book_uuid,
             "location": 0,
             "page": 0,
-            "progress": 0
+            "progress": 0,
+            "font_size": 14,
         }
 
         locations_data = None
@@ -65,3 +73,15 @@ class NeosEbookService:
 
         if locations_data:
             await self.chapters_repository.add_chapter_locations(locations_data.get("per_chapter", []))
+
+    async def _update_reading_state(self, book, uuid, page_number):
+        reading_state_data = {}
+
+        if book.pages:
+            reading_state_data["page"] = page_number
+            reading_state_data["progress"] = int((page_number / book.pages) * 100)
+        if book.locations:
+            reading_state_data["location"] = page_number
+            reading_state_data["progress"] = int((page_number / book.locations) * 100)
+
+        await self.reading_state_repository.update_reading_state(uuid, reading_state_data)

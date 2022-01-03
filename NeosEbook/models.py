@@ -27,6 +27,7 @@ ReadingState = sqlalchemy.Table(
     Column("page", Integer, default=0, nullable=True),
     Column("location", Integer, default=0, nullable=True),
     Column("progress", Integer, default=0),
+    Column("font_size", Integer, default=14)
 )
 
 

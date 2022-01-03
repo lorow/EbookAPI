@@ -6,9 +6,9 @@ from typing import List, Optional, Type
 import ebooklib
 from ebooklib import epub
 
-from NeosEbook import exceptions
-from NeosEbook import constants
-from NeosEbook.schema import NeosBookDB
+from NeosEbook import constants, exceptions
+from NeosEbook.repository import ChapterLocationsRepository
+from NeosEbook.schema import NeosBookDB, ReadingState
 
 
 class BaseBookStrategy(abc.ABC):
@@ -18,7 +18,7 @@ class BaseBookStrategy(abc.ABC):
     async def get_menu(self):
         raise NotImplementedError
 
-    async def get_page(self, number) -> dict:
+    async def get_page(self, number, chapters_repository, reading_state) -> dict:
         raise NotImplementedError
 
     async def get_cover(self) -> bytearray:
@@ -30,6 +30,17 @@ class BaseBookStrategy(abc.ABC):
     async def get_locations_data(self, book_uuid) -> dict:
         raise NotImplementedError
 
+    @staticmethod
+    async def _get_amount_of_locations_per_page_by_font_size(font_size: int = 14) -> int:
+        page_size_x = 816
+        page_size_y = 1056
+        line_size = 2.5
+        locations_x = (page_size_x / font_size) / 128
+        locations_y = page_size_y / (font_size * line_size)
+        total_locations_count = int(locations_x * locations_y)
+
+        return total_locations_count
+
 
 class EPUBBookStrategy(BaseBookStrategy):
 
@@ -39,8 +50,30 @@ class EPUBBookStrategy(BaseBookStrategy):
         if ebook_file_path:
             self.epub_book = self._get_epub_from_path(ebook_file_path)
 
-    async def get_page(self, number: int):
-        pass
+    async def get_page(
+        self,
+        number: int,
+        chapters_repository: ChapterLocationsRepository,
+        reading_state: ReadingState,
+    ) -> Optional[dict]:
+        page_data = {}
+
+        if not self.epub_book:
+            return None
+
+        if self.book.pages:
+            page = self.epub_book.pages[number]
+            page_data = {
+                "content": page.get_body_content(),
+                "previous_page": max(0, number - 1),
+                "next_page": min(self.book.pages, number + 1),
+            }
+
+        if self.book.locations:
+            locations_by_font = await self._get_amount_of_locations_per_page_by_font_size(reading_state.font_size)
+            chapter = await chapters_repository.get_chapter_by_location(self.book.uuid, number)
+
+        return page_data
 
     async def get_menu(self):
         pass

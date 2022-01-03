@@ -43,6 +43,7 @@ def upgrade():
         sa.Column("page", sa.Integer(), default=0, nullable=True),
         sa.Column("location", sa.Integer(), default=0, nullable=True),
         sa.Column("progress", sa.Integer(), default=0),
+        sa.Column("font_size", sa.Integer(), default=14),
     )
     op.create_table(
         "neosbooks__chapter_locations",

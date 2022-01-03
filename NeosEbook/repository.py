@@ -1,7 +1,7 @@
 from typing import Iterable, List
 
 import databases
-from sqlalchemy import text, select, insert, exists
+from sqlalchemy import between, exists, insert, select, text
 
 from NeosEbook.exceptions import ReadingStateAlreadyExistsException
 from NeosEbook.models import ChapterLocations, NeosBook, ReadingState
@@ -36,11 +36,19 @@ class ChapterLocationsRepository(BaseRepository):
         query = insert(ChapterLocations).values(locations_data)
         return await self.db.execute(query=query)
 
+    async def get_chapter_by_location(self, uuid, location):
+        query = (
+            select(ChapterLocations)
+            .where(text(f"uuid=='{uuid}'"))
+            .where((between(location, ChapterLocations.c.locations_min, ChapterLocations.c.locations_max)))
+        )
+        return await self.db.execute(query=query)
+
 
 class ReadingStateRepository(BaseRepository):
-    async def get_reading_state(self, uuid):
+    async def get_reading_state(self, uuid) -> ReadingState:
         query = select(ReadingState).where(text(f"uuid=='{uuid}'"))
-        return await self.db.execute(query)
+        return await self.db.fetch_one(query)
 
     async def update_reading_state(self, uuid, data):
         pass

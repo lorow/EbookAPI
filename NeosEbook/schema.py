@@ -28,9 +28,10 @@ class NeosBookOutList(BaseModel):
 
 
 class PageContent(BaseModel):
-    uuid: str
+    uuid: UUID
     content: str
-    page_number: int
+    next_page: int
+    previous_page: int
 
 
 class ChapterLocationsDB(BaseModel):
@@ -49,10 +50,11 @@ class ChapterLocationsDB(BaseModel):
 
 
 class ReadingState(BaseModel):
-    uuid: str
+    uuid: UUID
     page: Optional[int]
     location: Optional[int]
     progress: int
+    font_size: int
 
     class Config:
         orm_mode = True
