@@ -31,7 +31,9 @@ class BaseBookStrategy(abc.ABC):
         raise NotImplementedError
 
     @staticmethod
-    async def _get_amount_of_locations_per_page_by_font_size(font_size: int = 14) -> int:
+    async def _get_amount_of_locations_per_page_by_font_size(
+        font_size: int = 14,
+    ) -> int:
         page_size_x = 816
         page_size_y = 1056
         line_size = 2.5
@@ -43,7 +45,6 @@ class BaseBookStrategy(abc.ABC):
 
 
 class EPUBBookStrategy(BaseBookStrategy):
-
     def __init__(self, book=None, ebook_file_path=None):
         super(EPUBBookStrategy, self).__init__(book)
         self.epub_book: Optional[epub.EpubBook] = None
@@ -56,22 +57,40 @@ class EPUBBookStrategy(BaseBookStrategy):
         chapters_repository: ChapterLocationsRepository,
         reading_state: ReadingState,
     ) -> Optional[dict]:
-        page_data = {}
+        page_data = {
+            "uuid": self.book.uuid,
+            "previous_page": number,
+        }
 
         if not self.epub_book:
             return None
 
         if self.book.pages:
             page = self.epub_book.pages[number]
-            page_data = {
-                "content": page.get_body_content(),
-                "previous_page": max(0, number - 1),
-                "next_page": min(self.book.pages, number + 1),
-            }
+            page_data.update(
+                {
+                    "content": page.get_body_content(),
+                    "next_page": min(self.book.pages, number + 1),
+                }
+            )
 
         if self.book.locations:
-            locations_by_font = await self._get_amount_of_locations_per_page_by_font_size(reading_state.font_size)
-            chapter = await chapters_repository.get_chapter_by_location(self.book.uuid, number)
+            locations_by_font = (
+                await self._get_amount_of_locations_per_page_by_font_size(
+                    reading_state.font_size
+                )
+            )
+            chapter = await chapters_repository.get_chapter_by_location(
+                self.book.uuid, number
+            )
+            page = self.epub_book.get_item_with_id(chapter.id)
+            chapter_content = page.get_body_content()
+            page_data.update(
+                {
+                    "content": chapter_content[number:locations_by_font * constants.LOCATION],
+                    "next_page": number + locations_by_font,
+                }
+            )
 
         return page_data
 
@@ -109,7 +128,11 @@ class EPUBBookStrategy(BaseBookStrategy):
         if not self.epub_book:
             return locations_stats
 
-        chapters = [item for item in self.epub_book.get_items_of_type(ebooklib.ITEM_DOCUMENT) if item.is_chapter()]
+        chapters = [
+            item
+            for item in self.epub_book.get_items_of_type(ebooklib.ITEM_DOCUMENT)
+            if item.is_chapter()
+        ]
         total_words_count = sum([len(item.get_body_content()) for item in chapters])
         if total_words_count:
             locations_stats["total"] = total_words_count // constants.LOCATION
@@ -130,7 +153,9 @@ class EPUBBookStrategy(BaseBookStrategy):
         This way we can save space and send it right away on request
         """
         for item in book.items:
-            if (isinstance(item, epub.EpubImage) and "cover" in item.file_name) or isinstance(item, epub.EpubCover):
+            if (
+                isinstance(item, epub.EpubImage) and "cover" in item.file_name
+            ) or isinstance(item, epub.EpubCover):
                 return item.id
 
     @staticmethod
@@ -150,10 +175,16 @@ class EPUBBookStrategy(BaseBookStrategy):
     ) -> List[dict]:
         current_chapter = chapters[index]
         chapter_id = current_chapter.id
-        locations_in_chapter = len(current_chapter.get_body_content()) // constants.LOCATION
-        locations_min = previous_chapter.get("locations_max") + 1 if previous_chapter else 0
+        locations_in_chapter = (
+            len(current_chapter.get_body_content()) // constants.LOCATION
+        )
+        locations_min = (
+            previous_chapter.get("locations_max") + 1 if previous_chapter else 0
+        )
         locations_max = (
-            previous_chapter.get("locations_max") + locations_in_chapter if previous_chapter else locations_in_chapter
+            previous_chapter.get("locations_max") + locations_in_chapter
+            if previous_chapter
+            else locations_in_chapter
         )
         data.append(
             {
