@@ -18,7 +18,9 @@ async def main(book_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Add an epub book")
-    parser.add_argument("book_path", type=str, help="a path to a valid epub book, with extension")
+    parser.add_argument(
+        "book_path", type=str, help="a path to a valid epub book, with extension"
+    )
     args = parser.parse_args()
 
     print(f"Processing {args.book_path}")

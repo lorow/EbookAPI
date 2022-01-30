@@ -40,9 +40,17 @@ class ChapterLocationsRepository(BaseRepository):
         query = (
             select(ChapterLocations)
             .where(text(f"uuid=='{uuid}'"))
-            .where((between(location, ChapterLocations.c.locations_min, ChapterLocations.c.locations_max)))
+            .where(
+                (
+                    between(
+                        location,
+                        ChapterLocations.c.locations_min,
+                        ChapterLocations.c.locations_max,
+                    )
+                )
+            )
         )
-        return await self.db.execute(query=query)
+        return await self.db.fetch_one(query=query)
 
 
 class ReadingStateRepository(BaseRepository):
@@ -54,7 +62,9 @@ class ReadingStateRepository(BaseRepository):
         pass
 
     async def add_reading_state(self, data):
-        is_reading_state_present_query = select(ReadingState).where(text(f"uuid=='{data.get('uuid')}'"))
+        is_reading_state_present_query = select(ReadingState).where(
+            text(f"uuid=='{data.get('uuid')}'")
+        )
         if await self.db.fetch_one(query=is_reading_state_present_query):
             raise ReadingStateAlreadyExistsException()
 

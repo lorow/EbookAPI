@@ -11,8 +11,6 @@ router = APIRouter(prefix="/books", tags=["books"])
 
 @router.get("/", response_model=List[NeosBookOutList])
 async def list_books(q: Optional[str] = None, db: get_db = Depends()):
-    service = NeosEbookService(db)
-    await service.add_book_from_path("/Ebooks/Ready Player One by Ernest Cline (z-lib.org).epub")
     books_list = await NeosEbookService(db).get_books(q=q)
     return books_list
 
