@@ -39,9 +39,7 @@ class BaseBookStrategy(abc.ABC):
         line_size = 2.5
         locations_x = (page_size_x / font_size) / 128
         locations_y = page_size_y / (font_size * line_size)
-        total_locations_count = int(locations_x * locations_y)
-
-        return total_locations_count
+        return int(locations_x * locations_y)
 
 
 class EPUBBookStrategy(BaseBookStrategy):
@@ -110,7 +108,7 @@ class EPUBBookStrategy(BaseBookStrategy):
 
         book_uuid = uuid.uuid4()
         pages = len(self.epub_book.pages)
-        book_data = {
+        return {
             "uuid": book_uuid,
             "title": self.epub_book.title,
             "thumbnail": await self._get_cover_chapter_id(self.epub_book),
@@ -119,8 +117,6 @@ class EPUBBookStrategy(BaseBookStrategy):
             "locations": 0,
             "file_format": "epub",
         }
-
-        return book_data
 
     async def get_locations_data(self, book_uuid: str):
         locations_stats = {"total": 0, "per_chapter": []}
@@ -133,8 +129,9 @@ class EPUBBookStrategy(BaseBookStrategy):
             for item in self.epub_book.get_items_of_type(ebooklib.ITEM_DOCUMENT)
             if item.is_chapter()
         ]
-        total_words_count = sum([len(item.get_body_content()) for item in chapters])
-        if total_words_count:
+        if total_words_count := sum(
+            len(item.get_body_content()) for item in chapters
+        ):
             locations_stats["total"] = total_words_count // constants.LOCATION
             locations_stats["per_chapter"] = await self._get_chapter_locations_ranges(
                 book_uuid=book_uuid,
@@ -162,8 +159,7 @@ class EPUBBookStrategy(BaseBookStrategy):
     def _get_epub_from_path(book_path) -> epub.EpubBook:
         base_file_dir = os.path.dirname(os.path.dirname(__file__))
         ebook_path = f"{base_file_dir}{book_path}"
-        epub_book = epub.read_epub(ebook_path)
-        return epub_book
+        return epub.read_epub(ebook_path)
 
     async def _get_chapter_locations_ranges(
         self,
@@ -209,7 +205,7 @@ class EPUBBookStrategy(BaseBookStrategy):
 
 async def get_ebook_processing_strategy(file_extension: str) -> Type[BaseBookStrategy]:
     strategy_map = {"epub": EPUBBookStrategy}
-    strategy = strategy_map.get(file_extension, None)
+    strategy = strategy_map.get(file_extension)
 
     if not strategy:
         raise exceptions.StrategyNotImplementedException()
