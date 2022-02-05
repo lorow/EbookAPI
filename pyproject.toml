@@ -20,6 +20,7 @@ python-dotenv = "^0.19.2"
 pytest-asyncio = "^0.16.0"
 EbookLib = "^0.17.1"
 pytest-cov = "^3.0.0"
+beautifulsoup4 = "^4.10.0"
 
 [tool.poetry.dev-dependencies]
 

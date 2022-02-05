@@ -4,6 +4,7 @@ import uuid
 from typing import List, Optional, Type
 
 import ebooklib
+from bs4 import BeautifulSoup
 from ebooklib import epub
 
 from NeosEbook import constants, exceptions
@@ -67,7 +68,7 @@ class EPUBBookStrategy(BaseBookStrategy):
             page = self.epub_book.pages[number]
             page_data.update(
                 {
-                    "content": page.get_body_content(),
+                    "content": BeautifulSoup(page.get_content(), "html.parser").get_text(),
                     "next_page": min(self.book.pages, number + 1),
                 }
             )
@@ -82,10 +83,14 @@ class EPUBBookStrategy(BaseBookStrategy):
                 self.book.uuid, number
             )
             page = self.epub_book.get_item_with_id(chapter.id)
-            chapter_content = page.get_body_content()
+
+            chapter_content = BeautifulSoup(page.get_content(), "html.parser").get_text()
+
             page_data.update(
                 {
-                    "content": chapter_content[number:locations_by_font * constants.LOCATION],
+                    "content": chapter_content[
+                        (number - chapter.locations_min) * constants.LOCATION : locations_by_font * constants.LOCATION
+                    ],
                     "next_page": number + locations_by_font,
                 }
             )
@@ -129,9 +134,7 @@ class EPUBBookStrategy(BaseBookStrategy):
             for item in self.epub_book.get_items_of_type(ebooklib.ITEM_DOCUMENT)
             if item.is_chapter()
         ]
-        if total_words_count := sum(
-            len(item.get_body_content()) for item in chapters
-        ):
+        if total_words_count := sum(len(item.get_body_content()) for item in chapters):
             locations_stats["total"] = total_words_count // constants.LOCATION
             locations_stats["per_chapter"] = await self._get_chapter_locations_ranges(
                 book_uuid=book_uuid,
