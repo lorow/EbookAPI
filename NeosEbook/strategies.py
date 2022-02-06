@@ -58,7 +58,6 @@ class EPUBBookStrategy(BaseBookStrategy):
     ) -> Optional[dict]:
         page_data = {
             "uuid": self.book.uuid,
-            "previous_page": number,
         }
 
         if not self.epub_book:
@@ -70,6 +69,7 @@ class EPUBBookStrategy(BaseBookStrategy):
                 {
                     "content": BeautifulSoup(page.get_content(), "html.parser").get_text(),
                     "next_page": min(self.book.pages, number + 1),
+                    "previous_page": max(number-1, 0),
                 }
             )
 
@@ -92,6 +92,7 @@ class EPUBBookStrategy(BaseBookStrategy):
                         (number - chapter.locations_min) * constants.LOCATION : locations_by_font * constants.LOCATION
                     ],
                     "next_page": number + locations_by_font,
+                    "previous_page": max(number - locations_by_font, 0),
                 }
             )
 
