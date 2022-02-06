@@ -49,6 +49,10 @@ class NeosEbookService:
 
     async def get_cover(self, book_uuid) -> bytearray:
         book = await self.book_repository.get_book(book_uuid)
+        if not book:
+            raise fastapi.HTTPException(
+                status_code=404, detail="book with given uuid does not exist"
+            )
 
         parser_strategy = await get_ebook_processing_strategy(book.file_format)
         parser = parser_strategy(book=book, ebook_file_path=book.file_path)
