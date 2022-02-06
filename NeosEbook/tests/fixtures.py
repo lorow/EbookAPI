@@ -2,6 +2,8 @@ import pytest
 from fastapi.testclient import TestClient
 from ..app import app
 from NeosEbook.schema import NeosBookDB
+from ..database import get_db
+from ..repository import LocalBookRepository
 
 
 @pytest.fixture(scope="session")
@@ -17,6 +19,7 @@ def test_epub_book():
         title="some test book",
         thumbnail="None.jpg",
         current_page=12,
+        locations=0,
         pages=200,
         file_format="epub",
         file_path="none.epub",
@@ -31,7 +34,14 @@ def test_bad_extension_book():
         title="some test book",
         thumbnail="None.jpg",
         current_page=12,
+        locations=0,
         pages=200,
         file_format="notAnBookExtension",
         file_path="none.epub",
     )
+
+
+@pytest.fixture(scope="session")
+def test_local_book_repository():
+    db = get_db()
+    return LocalBookRepository(db)

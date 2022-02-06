@@ -31,3 +31,8 @@ def test_get_page_no_page(test_client):
 def test_get_cover_for_book_not_book_exists(test_client):
     response = test_client.get("/books/f4ed2488-5eb0-11ec-bf63-0242ac130002/cover")
     assert response.status_code == 404
+
+
+def test_get_cover_for_existing_book(test_client):
+    response = test_client.get("/books/71ca726e-4330-4cb4-b761-36502eaf2010/cover")
+    assert response.status_code == 200
