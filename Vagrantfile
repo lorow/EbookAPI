@@ -26,7 +26,7 @@ Vagrant.configure("2") do |config|
     add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable" -y
     apt install docker-ce -y
 
-    cd /NeosEbookReader &&  poetry env use python3.10 && oetry install
+    cd /NeosEbookReader &&  poetry env use python3.10 && poetry install
 
   SHELL
 end
