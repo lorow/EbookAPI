@@ -1,5 +1,4 @@
 import pytest
-from .fixtures import *
 
 
 @pytest.mark.asyncio

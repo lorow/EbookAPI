@@ -1,7 +1,5 @@
 import fastapi.testclient
 
-from .fixtures import *
-
 
 def test_list_all_books(test_client: fastapi.testclient.TestClient):
     response = test_client.get("/books")
