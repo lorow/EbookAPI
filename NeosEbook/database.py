@@ -1,12 +1,8 @@
 import databases
 import sqlalchemy
 
-from NeosEbook.settings import Settings
 
-
-def get_db() -> databases.Database:
-    config = Settings()
-
+def get_db(config) -> databases.Database:
     return (
         databases.Database(config.database_testing_url)
         if config.environment == "TESTING"
@@ -14,5 +10,4 @@ def get_db() -> databases.Database:
     )
 
 
-db = get_db()
 metadata = sqlalchemy.MetaData()

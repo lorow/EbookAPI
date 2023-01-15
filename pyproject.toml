@@ -6,14 +6,13 @@ authors = ["lorow <smykupyka@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-black = "^21.11b1"
 isort = "^5.10.1"
 fastapi = "^0.70.0"
 pytest = "^6.2.5"
 uvicorn = "^0.15.0"
 requests = "^2.26.0"
 bumpver = "^2021.1114"
-databases = {extras = ["sqlite"], version = "^0.5.3"}
+databases = {extras = ["aiosqlite"], version = "^0.7.0"}
 alembic = "^1.7.5"
 uuid = "^1.30"
 python-dotenv = "^0.19.2"
@@ -22,6 +21,7 @@ EbookLib = "^0.17.1"
 pytest-cov = "^3.0.0"
 beautifulsoup4 = "^4.10.0"
 python-osc = "^1.8.0"
+black = "^22.12.0"
 
 [tool.poetry.dev-dependencies]
 

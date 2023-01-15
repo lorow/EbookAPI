@@ -67,9 +67,11 @@ class EPUBBookStrategy(BaseBookStrategy):
             page = self.epub_book.pages[number]
             page_data.update(
                 {
-                    "content": BeautifulSoup(page.get_content(), "html.parser").get_text(),
+                    "content": BeautifulSoup(
+                        page.get_content(), "html.parser"
+                    ).get_text(),
                     "next_page": min(self.book.pages, number + 1),
-                    "previous_page": max(number-1, 0),
+                    "previous_page": max(number - 1, 0),
                 }
             )
 
@@ -84,12 +86,16 @@ class EPUBBookStrategy(BaseBookStrategy):
             )
             page = self.epub_book.get_item_with_id(chapter.id)
 
-            chapter_content = BeautifulSoup(page.get_content(), "html.parser").get_text()
+            chapter_content = BeautifulSoup(
+                page.get_content(), "html.parser"
+            ).get_text()
 
             page_data.update(
                 {
                     "content": chapter_content[
-                        (number - chapter.locations_min) * constants.LOCATION : locations_by_font * constants.LOCATION
+                        (number - chapter.locations_min)
+                        * constants.LOCATION: locations_by_font
+                        * constants.LOCATION
                     ],
                     "next_page": number + locations_by_font,
                     "previous_page": max(number - locations_by_font, 0),
@@ -101,7 +107,7 @@ class EPUBBookStrategy(BaseBookStrategy):
     async def get_menu(self):
         pass
 
-    async def get_cover(self) -> bytearray:
+    async def get_cover(self) -> Optional[bytearray]:
         if not self.epub_book:
             return None
 
