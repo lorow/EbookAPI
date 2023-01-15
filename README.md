@@ -1,8 +1,10 @@
-# NeosEbookAPI
-A simple API server written in fastapi for reading books inside of Neos. After all, what's better than a good book and a handful of chaos around you?
+# SimpleEbookAPI
+A simple API server written with the help of FastAPI as an excuse to learn. 
+Designed for reading books in Neos / VRC / anything that can interface with API or OSC. 
 
+After all, what's better than a good book and a handful of chaos around you?
 
-# Developent
+# Development
 ## setting up the environment: 
 - vagrant up
 ## Running tests:
