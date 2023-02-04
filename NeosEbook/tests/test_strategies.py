@@ -1,6 +1,5 @@
 import pytest
 from ..exceptions import StrategyNotImplementedException
-from ..schema import NeosBookDB
 from ..strategies import EPUBBookStrategy, get_ebook_processing_strategy
 
 

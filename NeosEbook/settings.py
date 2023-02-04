@@ -24,3 +24,6 @@ class Settings(BaseSettings):
                 "env": "ENVIRONMENT",
             },
         }
+
+
+config = Settings()
