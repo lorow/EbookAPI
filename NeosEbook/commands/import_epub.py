@@ -4,11 +4,10 @@ import time
 
 from NeosEbook.database import get_db
 from NeosEbook.service import NeosEbookService
-from NeosEbook.settings import Settings
+from NeosEbook.settings import config
 
 
 async def main(book_path):
-    config = Settings()
     db = get_db(config)
     await db.connect()
 

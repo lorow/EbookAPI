@@ -3,7 +3,6 @@ import fastapi.testclient
 
 def test_list_all_books(test_client: fastapi.testclient.TestClient):
     response = test_client.get("/books")
-
     assert response.status_code == 200
     assert len(response.json())
 

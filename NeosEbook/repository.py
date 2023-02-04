@@ -1,7 +1,7 @@
-from typing import Iterable, List
+from typing import List
 
 import databases
-from sqlalchemy import between, exists, insert, select, text
+from sqlalchemy import between, insert, select, text
 
 from NeosEbook.exceptions import ReadingStateAlreadyExistsException
 from NeosEbook.models import ChapterLocations, NeosBook, ReadingState

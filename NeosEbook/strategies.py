@@ -94,7 +94,7 @@ class EPUBBookStrategy(BaseBookStrategy):
                 {
                     "content": chapter_content[
                         (number - chapter.locations_min)
-                        * constants.LOCATION: locations_by_font
+                        * constants.LOCATION : locations_by_font
                         * constants.LOCATION
                     ],
                     "next_page": number + locations_by_font,

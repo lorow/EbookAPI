@@ -4,7 +4,7 @@ from ..app import app
 from NeosEbook.schema import NeosBookDB
 from ..database import get_db
 from ..repository import LocalBookRepository
-from ..settings import Settings
+from ..settings import config
 
 
 @pytest.fixture(scope="session")
@@ -57,7 +57,6 @@ def bad_extension_book():
 
 @pytest.fixture
 def local_book_repository():
-    config = Settings()
     config.environment = "TESTING"
     db = get_db(config)
     return LocalBookRepository(db)
