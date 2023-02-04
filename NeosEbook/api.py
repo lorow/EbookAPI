@@ -15,8 +15,7 @@ router = APIRouter(prefix="/books", tags=["books"])
 async def list_books(
     q: Optional[str] = None, db: databases.Database = Depends(lambda: get_db(config))
 ):
-    books_list = await NeosEbookService(db).get_books(q=q)
-    return books_list
+    return await NeosEbookService(db).get_books(q=q)
 
 
 @router.get(
