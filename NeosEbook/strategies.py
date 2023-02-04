@@ -65,15 +65,13 @@ class EPUBBookStrategy(BaseBookStrategy):
 
         if self.book.pages:
             page = self.epub_book.pages[number]
-            page_data.update(
-                {
-                    "content": BeautifulSoup(
-                        page.get_content(), "html.parser"
-                    ).get_text(),
-                    "next_page": min(self.book.pages, number + 1),
-                    "previous_page": max(number - 1, 0),
-                }
-            )
+            page_data |= {
+                "content": BeautifulSoup(
+                    page.get_content(), "html.parser"
+                ).get_text(),
+                "next_page": min(self.book.pages, number + 1),
+                "previous_page": max(number - 1, 0),
+            }
 
         if self.book.locations:
             locations_by_font = (
@@ -90,17 +88,15 @@ class EPUBBookStrategy(BaseBookStrategy):
                 page.get_content(), "html.parser"
             ).get_text()
 
-            page_data.update(
-                {
-                    "content": chapter_content[
-                        (number - chapter.locations_min)
-                        * constants.LOCATION : locations_by_font
-                        * constants.LOCATION
-                    ],
-                    "next_page": number + locations_by_font,
-                    "previous_page": max(number - locations_by_font, 0),
-                }
-            )
+            page_data |= {
+                "content": chapter_content[
+                    (number - chapter.locations_min)
+                    * constants.LOCATION : locations_by_font
+                    * constants.LOCATION
+                ],
+                "next_page": number + locations_by_font,
+                "previous_page": max(number - locations_by_font, 0),
+            }
 
         return page_data
 
@@ -215,9 +211,7 @@ class EPUBBookStrategy(BaseBookStrategy):
 
 async def get_ebook_processing_strategy(file_extension: str) -> Type[BaseBookStrategy]:
     strategy_map = {"epub": EPUBBookStrategy}
-    strategy = strategy_map.get(file_extension)
-
-    if not strategy:
+    if strategy := strategy_map.get(file_extension):
+        return strategy
+    else:
         raise exceptions.StrategyNotImplementedException()
-
-    return strategy
