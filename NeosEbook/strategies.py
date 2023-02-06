@@ -215,9 +215,6 @@ class EPUBBookStrategy(BaseBookStrategy):
 
 async def get_ebook_processing_strategy(file_extension: str) -> Type[BaseBookStrategy]:
     strategy_map = {"epub": EPUBBookStrategy}
-    strategy = strategy_map.get(file_extension)
-
-    if not strategy:
-        raise exceptions.StrategyNotImplementedException()
-
-    return strategy
+    if strategy := strategy_map.get(file_extension):
+        return strategy
+    raise exceptions.StrategyNotImplementedException()

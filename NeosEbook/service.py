@@ -7,7 +7,7 @@ from NeosEbook.repository import (
     LocalBookRepository,
     ReadingStateRepository,
 )
-from NeosEbook.schema import NeosBookDB, ReadingState
+from NeosEbook.schema import NeosBookDB
 from NeosEbook.strategies import get_ebook_processing_strategy
 
 
@@ -21,24 +21,20 @@ class NeosEbookService:
         return await self.book_repository.get_all_books()
 
     async def get_page(self, book_uuid: str, page_number: Optional[int]) -> dict:
-        book_record = await self.book_repository.get_book(uuid=book_uuid)
-        if not book_record:
+        book = await self.book_repository.get_book(uuid=book_uuid)
+        if not book:
             raise fastapi.HTTPException(
                 status_code=404, detail="book with given uuid does not exist"
             )
 
-        book = NeosBookDB(**book_record)
-
         parser_strategy = await get_ebook_processing_strategy(book.file_format)
         parser = parser_strategy(book=book, ebook_file_path=book.file_path)
 
-        reading_state_row = await self.reading_state_repository.get_reading_state(
-            book_uuid
-        )
-        reading_state = ReadingState(**reading_state_row)
+        reading_state = await self.reading_state_repository.get_reading_state(book_uuid)
 
         if not page_number:
             page_number = reading_state.page if book.pages else reading_state.location
+
         page = await parser.get_page(
             page_number, self.chapters_repository, reading_state
         )
