@@ -4,7 +4,7 @@ import databases
 from fastapi import APIRouter, Depends, Response
 
 from NeosEbook.database import get_db
-from NeosEbook.schema import NeosBookOutList, PageContent
+from NeosEbook.schema import NeosBookOutList, PageContent, BookmarkSerializerModel
 from NeosEbook.service import NeosEbookService
 from NeosEbook.settings import config
 
@@ -35,7 +35,18 @@ async def get_cover(
 async def get_page(
     book_uuid: str,
     page: Optional[int] = None,
+    bookmark: Optional[str] = None,
     db: databases.Database = Depends(lambda: get_db(config)),
 ):
-    page = await NeosEbookService(db).get_page(book_uuid, page)
+    page = await NeosEbookService(db).get_page(book_uuid=book_uuid, page_number=page, bookmark_uuid=bookmark)
     return page
+
+
+@router.post("/{book_uuid}/bookmark")
+async def set_bookmark(book_uuid: str, bookmark: BookmarkSerializerModel, db: databases.Database = Depends(lambda: get_db(config))):
+    bookmark = await NeosEbookService(db).add_bookmark(book_uuid, bookmark)
+    return bookmark
+
+@router.delete("/bookmarks/{bookmark_uuid}")
+async def delete_bookmark(bookmark_uuid: str, db: databases.Database = Depends(lambda: get_db(config))):
+    return await NeosEbookService(db).remove_bookmark(bookmark_uuid)

@@ -4,3 +4,7 @@ class StrategyNotImplementedException(Exception):
 
 class ReadingStateAlreadyExistsException(Exception):
     pass
+
+
+class BookmarkAlreadyExistsException(Exception):
+    pass

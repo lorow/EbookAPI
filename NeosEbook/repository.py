@@ -3,7 +3,10 @@ from typing import List, Optional
 import databases
 from sqlalchemy import between, insert, select, text
 
-from NeosEbook.exceptions import ReadingStateAlreadyExistsException
+from NeosEbook.exceptions import (
+    ReadingStateAlreadyExistsException,
+    BookmarkAlreadyExistsException,
+)
 from NeosEbook import models
 from NeosEbook import schema
 
@@ -68,11 +71,47 @@ class ReadingStateRepository(BaseRepository):
         # TODO implement this
 
     async def add_reading_state(self, data):
-        is_reading_state_present_query = select(schema.ReadingState).where(
+        is_reading_state_present_query = select(models.ReadingState).where(
             text(f"uuid=='{data.get('uuid')}'")
         )
         if await self.db.fetch_one(query=is_reading_state_present_query):
             raise ReadingStateAlreadyExistsException()
 
-        query = insert(schema.ReadingState).values(data)
+        query = insert(models.ReadingState).values(data)
+        return await self.db.execute(query)
+
+
+class BookmarkRepository(BaseRepository):
+
+    async def get_bookmark(self, bookmark_uuid: Optional[str]) -> schema.Bookmark:
+        if not bookmark_uuid:
+            return None
+
+        query = select(models.Bookmark, models.ChapterLocations).join(models.ChapterLocations).where(text(f"uuid=='{bookmark_uuid}'"))
+        data = await self.db.fetch_one(query)
+        if data:
+            location = models.ChapterLocations(**dict(data).get("ChapterLocations"))
+            return schema.Bookmark(location=location)
+
+    async def add_bookmark(
+        self, book_uuid: str, bookmark: schema.BookmarkSerializerModel
+    ) -> bool:
+        is_bookmark_present_query = select(models.Bookmark).where(
+            text(f"location_id=={bookmark.location}"), text(f"book_id=={book_uuid}")
+        )
+
+        if await self.db.fetch_one(query=is_bookmark_present_query):
+            raise BookmarkAlreadyExistsException()
+
+        query = insert(models.Bookmark).values(
+            {
+                "book_uuid": book_uuid,
+                "location_id": bookmark.location,
+            }
+        )
+
+        return await self.db.execute(query)
+
+    async def remove_bookmark(self, bookmark_uuid: str):
+        query = models.Bookmark.delete().where(text(f"uuid=={bookmark_uuid}"))
         return await self.db.execute(query)

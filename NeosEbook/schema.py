@@ -37,7 +37,7 @@ class PageContent(BaseModel):
 class ChapterLocationsDB(BaseModel):
     """
     Model used for efficiently searching from which chapter to read data
-     based on locations
+    based on locations
     """
 
     id: str
@@ -55,6 +55,17 @@ class ReadingState(BaseModel):
     location: Optional[int]
     progress: int
     font_size: int
+
+    class Config:
+        orm_mode = True
+
+
+class BookmarkSerializerModel(BaseModel):
+    location: int
+
+
+class Bookmark(BaseModel):
+    location: ChapterLocationsDB
 
     class Config:
         orm_mode = True

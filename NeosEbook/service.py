@@ -6,8 +6,9 @@ from NeosEbook.repository import (
     ChapterLocationsRepository,
     LocalBookRepository,
     ReadingStateRepository,
+    BookmarkRepository,
 )
-from NeosEbook.schema import NeosBookDB
+from NeosEbook.schema import NeosBookDB, BookmarkSerializerModel
 from NeosEbook.strategies import get_ebook_processing_strategy
 
 
@@ -16,11 +17,18 @@ class NeosEbookService:
         self.book_repository = LocalBookRepository(db)
         self.chapters_repository = ChapterLocationsRepository(db)
         self.reading_state_repository = ReadingStateRepository(db)
+        self.bookmark_repository = BookmarkRepository(db)
 
     async def get_books(self, q: Optional[str] = None) -> Iterable[NeosBookDB]:
+        # TODO add filtering
         return await self.book_repository.get_all_books()
 
-    async def get_page(self, book_uuid: str, page_number: Optional[int]) -> dict:
+    async def get_page(self, book_uuid: str, page_number: Optional[int], bookmark_uuid: Optional[str]) -> dict:
+        if all([page_number, bookmark_uuid]):
+            raise fastapi.HTTPException(
+                status_code=403, detail="Provide only the page number or the bookmark you want to access"
+            )
+
         book = await self.book_repository.get_book(uuid=book_uuid)
         if not book:
             raise fastapi.HTTPException(
@@ -31,6 +39,10 @@ class NeosEbookService:
         parser = parser_strategy(book=book, ebook_file_path=book.file_path)
 
         reading_state = await self.reading_state_repository.get_reading_state(book_uuid)
+
+        bookmark = await self.bookmark_repository.get_bookmark(bookmark_uuid=bookmark_uuid)
+        if bookmark:
+            page_number = bookmark.location.locations_min
 
         if not page_number:
             page_number = reading_state.page if book.pages else reading_state.location
@@ -86,6 +98,12 @@ class NeosEbookService:
             await self.chapters_repository.add_chapter_locations(
                 locations_data.get("per_chapter", [])
             )
+
+    async def add_bookmark(self, book_uuid, bookmark: BookmarkSerializerModel):
+        return await self.bookmark_repository.add_bookmark(book_uuid, bookmark)
+
+    async def remove_bookmark(self, bookmark_uuid):
+        return await self.bookmark_repository.remove_bookmark(bookmark_uuid)
 
     async def _update_reading_state(self, book, uuid, page_number):
         reading_state_data = {}

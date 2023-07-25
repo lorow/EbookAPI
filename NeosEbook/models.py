@@ -1,7 +1,7 @@
 import uuid as uuid
 
 import sqlalchemy
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 
 from NeosEbook.database import metadata
@@ -23,7 +23,7 @@ NeosBook = sqlalchemy.Table(
 ReadingState = sqlalchemy.Table(
     "neosbooks__reading_state",
     metadata,
-    Column("uuid", UUID(as_uuid=True)),
+    Column("uuid", UUID(as_uuid=True), primary_key=True, index=True),
     Column("page", Integer, default=0, nullable=True),
     Column("location", Integer, default=0, nullable=True),
     Column("progress", Integer, default=0),
@@ -34,8 +34,17 @@ ReadingState = sqlalchemy.Table(
 ChapterLocations = sqlalchemy.Table(
     "neosbooks__chapter_locations",
     metadata,
-    Column("id", String),
+    Column("id", Integer, primary_key=True, index=True),
     Column("uuid", UUID(as_uuid=True)),
     Column("locations_min", Integer, default=0),
     Column("locations_max", Integer, default=0),
+)
+
+
+Bookmark = sqlalchemy.Table(
+    "ebookapi_bookmarks",
+    metadata,
+    Column("uuid", UUID(as_uuid=True), primary_key=True, index=True),
+    Column("book_uuid", ForeignKey('NeosBook.uuid')),
+    Column("location_id", ForeignKey('ChapterLocations.id')),
 )
