@@ -9,7 +9,7 @@ from NeosEbook.repository import (
     BookmarkRepository,
 )
 from NeosEbook.schema import NeosBookDB, BookmarkSerializerModel
-from NeosEbook.strategies import get_ebook_processing_strategy
+from NeosEbook.strategies.books import get_ebook_processing_strategy
 
 
 class NeosEbookService:
@@ -55,7 +55,7 @@ class NeosEbookService:
 
         return page
 
-    async def get_cover(self, book_uuid) -> bytearray:
+    async def get_cover(self, book_uuid: str, output_format: str) -> bytearray:
         book = await self.book_repository.get_book(book_uuid)
         if not book:
             raise fastapi.HTTPException(
@@ -64,7 +64,7 @@ class NeosEbookService:
 
         parser_strategy = await get_ebook_processing_strategy(book.file_format)
         parser = parser_strategy(book=book, ebook_file_path=book.file_path)
-        cover = await parser.get_cover()
+        cover = await parser.get_cover(format=output_format)
 
         return cover
 

@@ -1,46 +1,17 @@
-import abc
+
 import os
 import uuid
-from typing import List, Optional, Type
+from typing import List, Optional
 
 import ebooklib
 from bs4 import BeautifulSoup
 from ebooklib import epub
 
-from NeosEbook import constants, exceptions
+from NeosEbook import constants
 from NeosEbook.repository import ChapterLocationsRepository
-from NeosEbook.schema import NeosBookDB, ReadingState
-
-
-class BaseBookStrategy(abc.ABC):
-    def __init__(self, book: Optional[NeosBookDB] = None, ebook_file_path: str = None):
-        self.book = book
-
-    async def get_menu(self):
-        raise NotImplementedError
-
-    async def get_page(self, number, chapters_repository, reading_state) -> dict:
-        raise NotImplementedError
-
-    async def get_cover(self) -> bytearray:
-        raise NotImplementedError
-
-    async def get_book_data(self, book_path: str) -> dict:
-        raise NotImplementedError
-
-    async def get_locations_data(self, book_uuid) -> dict:
-        raise NotImplementedError
-
-    @staticmethod
-    async def _get_amount_of_locations_per_page_by_font_size(
-        font_size: int = 14,
-    ) -> int:
-        page_size_x = 816
-        page_size_y = 1056
-        line_size = 2.5
-        locations_x = (page_size_x / font_size) / 128
-        locations_y = page_size_y / (font_size * line_size)
-        return int(locations_x * locations_y)
+from NeosEbook.schema import ReadingState
+from NeosEbook.strategies.books.base import BaseBookStrategy
+from NeosEbook.strategies.images import get_image_processing_strategy
 
 
 class EPUBBookStrategy(BaseBookStrategy):
@@ -107,12 +78,14 @@ class EPUBBookStrategy(BaseBookStrategy):
     async def get_menu(self):
         pass
 
-    async def get_cover(self) -> Optional[bytearray]:
+    async def get_cover(self, output_format) -> Optional[bytearray]:
         if not self.epub_book:
             return None
 
         cover_chapter = self.epub_book.get_item_with_id(self.book.thumbnail)
-        return cover_chapter.content
+        image_processing_strategy = await get_image_processing_strategy(output_format)
+        cover = await image_processing_strategy(cover_chapter)
+        return cover
 
     async def get_book_data(self, book_path: str):
         if not self.epub_book:
@@ -211,10 +184,3 @@ class EPUBBookStrategy(BaseBookStrategy):
             data=data,
             previous_chapter=data[index],
         )
-
-
-async def get_ebook_processing_strategy(file_extension: str) -> Type[BaseBookStrategy]:
-    strategy_map = {"epub": EPUBBookStrategy}
-    if strategy := strategy_map.get(file_extension):
-        return strategy
-    raise exceptions.StrategyNotImplementedException()

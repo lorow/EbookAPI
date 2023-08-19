@@ -1,6 +1,6 @@
 import pytest
 from ..exceptions import StrategyNotImplementedException
-from ..strategies import EPUBBookStrategy, get_ebook_processing_strategy
+from ..strategies.books import get_ebook_processing_strategy, EPUBBookStrategy
 
 
 @pytest.mark.asyncio

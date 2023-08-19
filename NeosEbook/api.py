@@ -25,9 +25,9 @@ async def list_books(
     response_class=Response,
 )
 async def get_cover(
-    book_uuid: str, db: databases.Database = Depends(lambda: get_db(config))
+    book_uuid: str, output_format: str="image", db: databases.Database = Depends(lambda: get_db(config))
 ):
-    cover = await NeosEbookService(db).get_cover(book_uuid)
+    cover = await NeosEbookService(db).get_cover(book_uuid, output_format=output_format)
     return Response(content=cover, media_type="image/png")
 
 
